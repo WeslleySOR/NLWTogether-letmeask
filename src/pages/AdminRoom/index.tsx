@@ -1,20 +1,21 @@
-// import { FormEvent, useState } from 'react';
+import { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
-import { Button } from '../components/Button'
-import { RoomCode } from '../components/RoomCode'
-import { Question } from '../components/Question'
-import { database } from '../services/firebase';
+import { Button } from '../../components/Button/index'
+import { RoomCode } from '../../components/RoomCode/index'
+import { Question } from '../../components/Question/index'
+import { database } from '../../services/firebase';
 
 // import { useAuth } from '../hooks/useAuth';
-import { useRoom } from '../hooks/useRoom';
+import { useRoom } from '../../hooks/useRoom';
 
-import logoImg from '../assets/images/logo.svg';
-import deleteImg from '../assets/images/delete.svg'
-import checkImg from '../assets/images/check.svg'
-import answerImg from '../assets/images/answer.svg'
+import logoImg from '../../assets/images/logo.svg';
+import deleteImg from '../../assets/images/delete.svg'
+import checkImg from '../../assets/images/check.svg'
+import answerImg from '../../assets/images/answer.svg'
+import showMenuImg from '../../assets/images/menu.svg'
 
-import '../styles/room.scss';
+import style from './styles.module.scss';
 
 
 type RoomParams = {
@@ -27,6 +28,8 @@ export function AdminRoom(){
   const params = useParams<RoomParams>();
   const roomId = params.id;
   const { title, questions } = useRoom(roomId);
+
+  const [showMenu, setShowMenu] = useState(false);
 
   async function handleEndRoom(){
     await database.ref(`rooms/${roomId}`).update({
@@ -55,22 +58,32 @@ export function AdminRoom(){
 
 
   return(
-    <div id="page-room">
-      <header>
-        <div className="content">
+    <div className={style.pageRoom}>
+      <header className={style.header}>
+        <div className={style.content}>
+          <button className={style.showMenuBtn} onClick={()=> setShowMenu(!showMenu)}><img src={showMenuImg} alt="showMenuBtn" /></button>
           <img src={logoImg} alt="Lestmeask" />
-          <div>
+          <div className={style.webItems}>
             <RoomCode code={roomId}/>
             <Button isOutlined onClick={ handleEndRoom }>Encerrar Sala</Button>
           </div>
+          {
+            showMenu ?
+            <div className={style.mobileItems}>
+              <RoomCode code={roomId}/>
+              <Button isOutlined onClick={ handleEndRoom }>Encerrar Sala</Button>
+            </div>
+            :
+            ''
+          }
         </div>
       </header>
-      <main>
-        <div className="room-title">
+      <main className={style.main}>
+        <div className={style.roomTitle}>
           <h1>Sala {title}</h1>
           { questions.length > 0 && <span>{questions.length} pergunta(s)</span>}
         </div>
-        <div className="question-list">
+        <div className={style.questionList}>
           {questions.map(question =>{
             return(
               <Question

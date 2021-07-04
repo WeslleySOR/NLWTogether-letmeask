@@ -1,18 +1,19 @@
 import { FormEvent, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Button } from '../components/Button'
-import { RoomCode } from '../components/RoomCode'
-import { Question } from '../components/Question'
+import { Button } from '../../components/Button/index'
+import { RoomCode } from '../../components/RoomCode/index'
+import { Question } from '../../components/Question/index'
 
-import { database } from '../services/firebase';
+import { database } from '../../services/firebase';
 
-import { useAuth } from '../hooks/useAuth';
-import { useRoom } from '../hooks/useRoom';
+import { useAuth } from '../../hooks/useAuth';
+import { useRoom } from '../../hooks/useRoom';
 
-import logoImg from '../assets/images/logo.svg';
+import logoImg from '../../assets/images/logo.svg';
+import showMenuImg from '../../assets/images/menu.svg'
 
-import '../styles/room.scss';
+import './room.scss';
 
 type RoomParams = {
   id: string;
@@ -24,6 +25,8 @@ export function Room(){
   const [newQuestion, setNewquestion] = useState('');
   const roomId = params.id;
   const { title, questions } = useRoom(roomId);
+
+  const [showMenu, setShowMenu] = useState(false);
 
   async function handleSendQuestion(event: FormEvent){
     event.preventDefault();
@@ -61,8 +64,19 @@ export function Room(){
     <div id="page-room">
       <header>
         <div className="content">
+          <button className="show-menu-button" onClick={()=> setShowMenu(!showMenu)}><img src={showMenuImg} alt="showMenuBtn" /></button>
           <img src={logoImg} alt="Lestmeask" />
-          <RoomCode code={roomId}/>
+          <div className="web-items">
+            <RoomCode code={roomId}/>
+          </div>
+          {
+            showMenu ?
+            <div className="mobile-items">
+              <RoomCode code={roomId}/>
+            </div>
+            :
+            ''
+          }
         </div>
       </header>
       <main>
