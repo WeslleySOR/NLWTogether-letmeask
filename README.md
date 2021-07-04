@@ -43,6 +43,21 @@ You can view the project layout through the links below:
 
 Remembering that you need to have a [Figma](http://figma.com/) account to access it.
 
+## 📝 Update [04/07/2021]
+
+<h1>Responsive Home</h1>
+<h2 align="center">
+    <img alt="Letmeask" title="Letmeask" src=".github/HomeResponsive.png" />
+</h2>
+<h1>Responsive Page User Room</h1>
+<h2 align="center">
+    <img alt="Letmeask" title="Letmeask" src=".github/QuestionsUserResponsive.png" />
+</h2>
+<h1>Responsive Page Admin Room</h1>
+<h2 align="center">
+    <img alt="Letmeask" title="Letmeask" src=".github/QuestionsAdminResponsive.png" />
+</h2>
+
 ## 📝 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
