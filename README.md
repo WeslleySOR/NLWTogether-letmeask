@@ -33,7 +33,7 @@ $ yarn
 # Start the project
 $ yarn start
 ```
-The app will be available for access on your browser at http://localhost:3000
+The app will be available for access on your browser at https://letmeask-12555.web.app/
 
 ## 🔖 Layout
 
