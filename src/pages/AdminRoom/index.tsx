@@ -1,21 +1,17 @@
-import { useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 
-import { Button } from '../../components/Button/index'
-import { RoomCode } from '../../components/RoomCode/index'
-import { Question } from '../../components/Question/index'
 import { database } from '../../services/firebase';
 
-// import { useAuth } from '../hooks/useAuth';
 import { useRoom } from '../../hooks/useRoom';
 
 import logoImg from '../../assets/images/logo.svg';
 import deleteImg from '../../assets/images/delete.svg'
 import checkImg from '../../assets/images/check.svg'
 import answerImg from '../../assets/images/answer.svg'
-import showMenuImg from '../../assets/images/menu.svg'
+import copyImg from '../../assets/images/copy.svg'
 
-import style from './styles.module.scss';
+import { Flex, Grid, GridItem, useColorMode, Image, Box, Button, Text, IconButton, HStack } from '@chakra-ui/react';
+import { SunIcon, MoonIcon } from '@chakra-ui/icons';
 
 
 type RoomParams = {
@@ -23,13 +19,35 @@ type RoomParams = {
 }
 
 export function AdminRoom(){
-  // const {user} = useAuth();
+  const { colorMode, toggleColorMode } = useColorMode()
   const history = useHistory();
   const params = useParams<RoomParams>();
   const roomId = params.id;
   const { title, questions } = useRoom(roomId);
 
-  const [showMenu, setShowMenu] = useState(false);
+  const questionBGColor = (highlighted: boolean , answered: boolean)=>{
+    if(colorMode === "light")
+    {
+      if(!highlighted && !answered)
+        return "light.BGSecondary"
+      else if(highlighted && !answered)
+        return "light.BGHighlighted"
+      else if(!highlighted && answered)
+        return "light.BGAnswered"
+    }
+    else if(colorMode === "dark"){
+      if(!highlighted && !answered)
+        return "dark.BGSecondary"
+      else if(highlighted && !answered)
+        return "dark.BGHighlighted"
+      else if(highlighted && answered)
+        return "dark.BGAnswered"
+    }
+  }
+  
+  function copyRoomCodeToClipboard(code: string){
+    navigator.clipboard.writeText(code)
+  }
 
   async function handleEndRoom(){
     await database.ref(`rooms/${roomId}`).update({
@@ -58,68 +76,97 @@ export function AdminRoom(){
 
 
   return(
-    <div className={style.pageRoom}>
-      <header className={style.header}>
-        <div className={style.content}>
-          <button className={style.showMenuBtn} onClick={()=> setShowMenu(!showMenu)}><img src={showMenuImg} alt="showMenuBtn" /></button>
-          <img src={logoImg} alt="Lestmeask" />
-          <div className={style.webItems}>
-            <RoomCode code={roomId}/>
-            <Button isOutlined onClick={ handleEndRoom }>Encerrar Sala</Button>
-          </div>
-          {
-            showMenu ?
-            <div className={style.mobileItems}>
-              <RoomCode code={roomId}/>
-              <Button isOutlined onClick={ handleEndRoom }>Encerrar Sala</Button>
-            </div>
-            :
-            ''
-          }
-        </div>
-      </header>
-      <main className={style.main}>
-        <div className={style.roomTitle}>
-          <h1>Sala {title}</h1>
-          { questions.length > 0 && <span>{questions.length} pergunta(s)</span>}
-        </div>
-        <div className={style.questionList}>
+    <Grid templateRows="auto auto">
+      <GridItem rowStart={1} padding="1.2rem" borderBottom="1px solid #e2e2e2" maxH="100%">
+        <Box marginLeft="4rem" cursor="pointer">
+          <Link to="/">
+            <Image src={logoImg} alt="Lestmeask" h="100%"/>
+          </Link>
+        </Box>
+        <IconButton 
+            icon={colorMode === "light" ? <SunIcon/>:<MoonIcon/>}
+            fontSize="3rem"
+            variant="unstyled"
+            aria-label="Color mode switcher"
+            onClick={toggleColorMode}
+            transition="0.4s"
+            position="absolute"
+            right="10"
+            top= "9"
+            >Switch Mode
+        </IconButton>
+      </GridItem>
+      <GridItem rowStart={2}>
+        <Grid templateColumns="1fr 6fr 1fr" templateRows="1fr auto">
+          <GridItem rowStart={1} colStart={2} margin="32px 0 24px">
+            <Flex alignItems="center" justifyContent="space-between">
+              <HStack spacing={6}>
+                <Text fontFamily="Poppins, sans-serif" fontSize="2.4rem" fontWeight="700" color={colorMode === "light" ? "light.TextColor" : "dark.TextColor"}>{title}</Text>
+                { questions.length > 0 && <Text marginLeft="16px" bg="#e559f9" borderRadius="9999px" padding="8px 16px" color="#fff" fontWeight="500" fontSize="1.4rem">{questions.length} pergunta(s)</Text>}
+              </HStack>
+              <HStack spacing={6}>
+                <Flex borderRadius="8px" overflow="hidden" bg={colorMode === "light" ? "light.BGSecondary" : "dark.BGSecondary"} border="1px solid #835afd" cursor="pointer">
+                  <Button variant="ghost" h="100%" onClick={()=>copyRoomCodeToClipboard(roomId)} padding="0">
+                    <Image src={copyImg} alt="Copy room code" padding="12px 12px" bg="#835afd" h="4rem"/>
+                    <Text flex="1" padding="0 16px 0 12px" w="24rem" fontSize="1.4rem" fontWeight="500" display="block" alignSelf="center"> Sala {roomId}</Text>
+                  </Button>
+                </Flex>
+                <Button onClick={handleEndRoom} marginRight="12rem" h="4rem" borderRadius="8px" fontWeight="500" background="transparent" color="#835afd"
+                  display="flex" justifyContent="center" alignItems="center" cursor="pointer" border="1px solid #835afd" transition="filter 0.2s" fontSize= "1.6rem"
+                >Encerrar Sala</Button>
+              </HStack>
+            </Flex>
+          </GridItem>
+          <GridItem rowStart={2} colStart={2} marginTop="32px">
           {questions.map(question =>{
             return(
-              <Question
-                key={question.id}
-                content={question.content}
-                author={question.author}
-                isAnswered={question.isAnswered}
-                isHighlighted={question.isHighlighted}
-              >
-                {!question.isAnswered &&(
-                  <>
-                    <button
+              <Flex flexDirection="column" bg={questionBGColor(question.isHighlighted, question.isAnswered)}
+              _notFirst={{marginTop:"2.4rem"}}
+              border={question.isHighlighted && !question.isAnswered ? "1px solid #835afd" : !question.isHighlighted && question.isAnswered ? "1px solid #F8485E" : ""}
+              borderRadius="8px" boxShadow="0 2px 12px rgba(0, 0, 0, 0.4)" padding="2.4rem" marginTop="3.6rem">
+                <Text color={colorMode === "light" ? "light.TextColor" : "dark.TextColor"} fontSize="1.6rem">- {question.content}</Text>
+                <Flex justifyContent="space-between" alignItems="center" marginTop="2.4rem">
+                  <Flex alignItems="center">
+                    <Image w="3.2rem" h="3.2rem" borderRadius="50%" src={question.author.avatar} alt={question.author.name}/>
+                    <Text marginLeft="0.8rem" color={colorMode === "light" ? "light.TextColor" : "dark.TextColor"} fontSize="1.4rem">{question.author.name}</Text>
+                  </Flex>
+                  <Flex alignItems="flex-end" gridGap={16}>
+                    {!question.isAnswered ?
+                      <>
+                      <Button
                       type="button"
+                      variant="unstyled"
                       onClick={() => handleCheckQuestionAsAnswered(question.id)}
-                    >
-                      <img src={checkImg} alt="Marcar pergunta como respondida" />
-                    </button>
-                    <button
+                      >
+                        <Image src={checkImg} alt="Marcar pergunta como respondida"/>
+                      </Button>
+
+                      <Button
                       type="button"
+                      variant="unstyled"
                       onClick={() => handleHighlightQuestion(question.id)}
-                    >
-                      <img src={answerImg} alt="Dar destaque à pergunta" />
-                    </button>
-                  </>
-                )}
-                <button
-                  type="button"
-                  onClick={() => handleDeleteQuestion(question.id)}
-                >
-                  <img src={deleteImg} alt="Remover pergunta" />
-                </button>
-              </Question>
+                      >
+                        <Image src={answerImg} alt="Dar destaque à pergunta"/>
+                      </Button>
+                    </>
+                    :
+                    <Text color="#F8485E" fontSize="1.6rem" fontWeight="700">Respondida</Text>
+                    }
+                    <Button
+                        type="button"
+                        variant="unstyled"
+                        onClick={() => handleDeleteQuestion(question.id)}
+                        >
+                        <Image src={deleteImg} alt="Remover pergunta"/>                        
+                    </Button>
+                  </Flex>
+                </Flex>
+              </Flex>
             );
           })}
-        </div>
-      </main>
-    </div>
+          </GridItem>
+        </Grid>
+      </GridItem>
+    </Grid>
   );
 }

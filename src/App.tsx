@@ -7,18 +7,24 @@ import { AdminRoom } from './pages/AdminRoom/index';
 
 import { AuthContextProvider } from './contexts/AuthContext'
 
+
+import { ChakraProvider } from "@chakra-ui/react"
+import { newTheme } from './styles/themes'
+
 function App() {
   return (
-    <BrowserRouter>
-      <AuthContextProvider>
-        <Switch>
-          <Route path="/" exact component={ Home } />
-          <Route path="/rooms/new" component={ NewRoom } />
-          <Route path="/rooms/:id" component={ Room } />
-          <Route path="/admin/rooms/:id" component={ AdminRoom } />
-        </Switch>
-      </AuthContextProvider>
-    </BrowserRouter>
+    <AuthContextProvider>
+      <ChakraProvider resetCSS theme={newTheme}>
+        <BrowserRouter>
+            <Switch>
+              <Route path="/" exact component={ Home } />
+              <Route path="/rooms/new" component={ NewRoom } />
+              <Route path="/rooms/:id" component={ Room } />
+              <Route path="/admin/rooms/:id" component={ AdminRoom } />
+            </Switch>
+        </BrowserRouter>
+      </ChakraProvider>
+    </AuthContextProvider>
   );
 }
 
