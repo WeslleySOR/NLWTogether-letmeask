@@ -86,7 +86,7 @@ export function Room(){
   return(
     <Grid templateRows="auto auto">
       <GridItem rowStart={1} padding="1.2rem" borderBottom="1px solid #e2e2e2" maxH="100%">
-        <Box marginLeft="4rem" cursor="pointer">
+        <Box marginLeft="4rem" cursor="pointer"  w="fit-content">
           <Link to="/">
             <Image src={logoImg} alt="Lestmeask" h="100%"/>
           </Link>
